@@ -23,33 +23,32 @@ namespace ITI.Work.Tests
             }
 
             ///
-            using( IEnumerator<int> e = myList.GetEnumerator() )
             {
-                while( e.MoveNext() )
+                using( IEnumerator<int> e = myList.GetEnumerator() )
                 {
-                    Console.WriteLine( e.Current );
+                    while( e.MoveNext() )
+                    {
+                        Console.WriteLine( e.Current );
+                    }
                 }
             }
 
-            ///
-            IEnumerator<int> e = myList.GetEnumerator();
-            try
             {
-                while( e.MoveNext() )
+                IEnumerator<int> e = myList.GetEnumerator();
+                try
                 {
-                    Console.WriteLine( e.Current );
+                    while( e.MoveNext() )
+                    {
+                        Console.WriteLine( e.Current );
+                    }
                 }
-            }
-            finally
-            {
-                e.Dispose();
+                finally
+                {
+                    e.Dispose();
+                }
             }
 
         }
-
-
-
-    }
 
         [Test]
         public void how_list_works()
@@ -143,5 +142,44 @@ namespace ITI.Work.Tests
             myList[2].Should().Be( 10 );
         }
 
+
+        [Test]
+        public void dictionary_at_work()
+        {
+            var d = new ITIDictionary<string, int>();
+            d.Add( "One", 1 );
+            d["Two"] = 2;
+
+            d.Invoking( sut => sut.Add( "One", 1 ) )
+                .ShouldThrow<InvalidOperationException>();
+
+            d["One"].Should().Be( 1 );
+            d["Two"].Should().Be( 2 );
+
+            d["Two"] = 2000;
+
+            d.Count.Should().Be( 2 );
+
+            int count = 0;
+            foreach( KeyValuePair<string,int> kv in d )
+            {
+                Assert.That(  ++count <= d.Count
+                                &&
+                              ((kv.Key == "One") == (kv.Value == 1)
+                                 ||
+                               (kv.Key == "Two" ) == (kv.Value == 2000)) );
+            }
+
+            d.Remove( "One" );
+            d.Count.Should().Be( 1 );
+
+            d.Remove( "Two" );
+            d.Count.Should().Be( 0 );
+
+            foreach( KeyValuePair<string, int> kv in d )
+            {
+                Assert.Fail( "No way to be here!" );
+            }
+        }
     }
 }
